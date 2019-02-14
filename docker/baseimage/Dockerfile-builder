@@ -1,0 +1,7 @@
+FROM alpine
+
+RUN apk update && apk add --no-cache curl git && \
+    curl -L -o /tmp/docker.tgz https://download.docker.com/linux/static/stable/x86_64/docker-18.06.2-ce.tgz && \
+    tar -xz -C /tmp -f /tmp/docker.tgz && \
+    rm -Rf /tmp/docker.tgz && \
+    mv /tmp/docker/* /usr/bin

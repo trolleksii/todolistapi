@@ -1,6 +1,6 @@
 FROM trolleksii/python-base:latest
 
-COPY ./target /wheelhouse
+COPY ./artifacts /wheelhouse
 
 RUN pip install --no-index -f /wheelhouse todolistapi && \
     rm -rf /wheelhouse

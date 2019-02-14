@@ -1,9 +1,109 @@
 version: 2
 jobs:
-  build:
+  test:
     docker:
-      - image: alpine
+      - image: trolleksii/python-base
+        environment:
+          POSTGRES_PASSWORD: '123456'
+          TEST_OUTPUT_DIR: '/reports'
+          WHEELHOUSE: /wheelhouse
+          PIP_WHEEL_DIR: /wheelhouse
+          PIP_FIND_LINKS: /wheelhouse
+          XDG_CACHE_HOME: /cache
+      - image: postgres:10-alpine
+        environment:
+          POSTGRES_PASSWORD: '123456'
     steps:
       - checkout
-      - run: ls -la
-      - run: echo "Hello World"
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "src/setup.py" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Install package dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            cd src
+            pip install --upgrade pip
+            pip download -d /build -r requirements-test.txt --no-input --exists-action w
+            pip install --no-index -f /build -r requirements-test.txt
+      - run:
+          name: Wait for db
+          command: |
+            wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz && rm dockerize-linux-amd64-v0.6.1.tar.gz
+            dockerize -wait tcp://localhost:5432 -timeout 1s
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            cd src
+            python manage.py test
+      - store_artifacts:
+          path: /reports
+      - save_cache:
+          paths:
+            - /cache
+            - /build
+            - venv
+          key: v1-dependencies-{{ checksum "src/setup.py" }}
+
+  build:
+    docker:
+      - image: trolleksii/python-base
+        environment:
+          WHEELHOUSE: /wheelhouse
+          PIP_WHEEL_DIR: /wheelhouse
+          PIP_FIND_LINKS: /wheelhouse
+          XDG_CACHE_HOME: /cache
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "src/setup.py" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Build artifact
+          command: pip wheel --no-index -f /build -w /artifacts ./src
+      - save_cache:
+          paths:
+            - /artifacts
+          key: artifacts-{{ .Revision }}
+      - store_artifacts:
+          path: /artifacts
+
+  release:
+    docker:
+      - image: trolleksii/cci-builder
+    steps:
+      - setup_remote_docker
+      - checkout
+      - restore_cache:
+          keys:
+            - artifacts-{{ .Revision }}
+      - run:
+          name: Build app docker image
+          command: |
+            mv /artifacts ./artifacts
+            docker build -t trolleksii/todolistapi -f docker/release/Dockerfile .
+      - run:
+          name: Publish docker image
+          command: |
+            docker tag trolleksii/todolistapi trolleksii/todolistapi:$(git rev-parse --short HEAD)
+            docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+            docker push trolleksii/todolistapi:$(git rev-parse --short HEAD)
+            docker logout
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+        - test
+        - build:
+            requires:
+              - test
+        - release:
+            requires:
+              - build

@@ -1,14 +1,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="todoitemslistapi",
-    version="0.0.1",
+    name="todolistapi",
+    version="0.0.2",
     description="Todo List API",
     packages=find_packages(),
     include_package_data=True,
     scripts=["manage.py"],
     install_requires=[
-        "Django>=2.1.2",
+        "Django>=2.1.7",
         "django-cors-headers>=2.4.0",
         "gunicorn>=19.9.0"
     ],

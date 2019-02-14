@@ -1,5 +1,13 @@
 FROM trolleksii/python-base:latest
 
+ENV WHEELHOUSE=/wheelhouse PIP_WHEEL_DIR=/wheelhouse PIP_FIND_LINKS=/wheelhouse XDG_CACHE_HOME=/cache
+
+VOLUME /wheelhouse
+
+VOLUME /build
+
+VOLUME /reports
+
 ARG USER_NAME
 
 COPY src /app
