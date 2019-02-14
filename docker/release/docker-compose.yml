@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  db:
+    image:
+      postgres:10.6-alpine
+    environment:
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+
+  db_probe:
+    image: trolleksii/ansible_db_probe
+    depends_on:
+      - db
+    environment:
+      - PROBE_HOST=db
+      - PROBE_PORT=5432
+
+  app:
+    build:
+      context: ../../
+      dockerfile: ./docker/release/Dockerfile
+    environment:
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_HOST=db
+      - DJANGO_SETTINGS_MODULE=todolistapi.settings.release
+    command: gunicorn -w 2 --bind 0.0.0.0:8000 todolistapi.wsgi:application
+    ports:
+      - 8000:8000
+    depends_on:
+      - db

@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  db:
+    image:
+      postgres:10.6-alpine
+    environment:
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+
+  db_probe:
+    image: trolleksii/ansible_db_probe
+    depends_on:
+      - db
+    environment:
+      - PROBE_HOST=db
+      - PROBE_PORT=5432
+
+  app:
+    build:
+      args:
+        - USER_NAME=${USER}
+      context: ../../
+      dockerfile: ./docker/dev/Dockerfile
+    environment:
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_HOST=db
+      - DJANGO_SETTINGS_MODULE=todolistapi.settings.dev
+    command: sh
+    volumes:
+      - ${PWD}/src:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
