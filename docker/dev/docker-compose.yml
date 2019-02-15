@@ -24,7 +24,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=${PG_PASSWORD}
       - POSTGRES_HOST=db
-      - DJANGO_SETTINGS_MODULE=todolistapi.settings.dev
+      - DJANGO_SETTINGS_MODULE=todolistapi.settings.test
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ${PWD}/src:/app

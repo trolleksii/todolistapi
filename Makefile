@@ -36,7 +36,7 @@ devserver:
 	${INFO} "Waiting while database is ready..."
 	@ docker-compose -p $(DEV_PROJECT) -f $(DEV_COMPOSE_FILE) run --rm db_probe
 	${INFO} "Running server..."
-	@ docker-compose -p $(DEV_PROJECT) -f $(DEV_COMPOSE_FILE) run --rm -p 8000:8000 app sh
+	@ docker-compose -p $(DEV_PROJECT) -f $(DEV_COMPOSE_FILE) run -p 8000:8000 app sh
 	${CHECK} $(DEV_PROJECT) $(DEV_COMPOSE_FILE) app
 	${INFO} "Done"
 
