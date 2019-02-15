@@ -23,8 +23,6 @@ jobs:
       - run:
           name: Install package dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
             cd src
             pip install --upgrade pip
             pip download -d /build -r requirements-test.txt --no-input --exists-action w
@@ -37,9 +35,11 @@ jobs:
       - run:
           name: Run tests
           command: |
-            . venv/bin/activate
             cd src
-            python manage.py test
+            coverage run --omit=manage.py,setup.py manage.py test
+            coverage report
+            coverage xml -o /reports/coverage.xml
+            coverage html -d /reports/html
       - store_artifacts:
           path: /reports
       - save_cache:
