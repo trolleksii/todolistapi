@@ -20,3 +20,10 @@ class TodoItemTests(LiveServerTestCase):
         item = TodoItem(**data)
         with self.assertRaises(ValidationError):
             item.full_clean()
+
+    def test_get_next_order_num_with_empty_db(self):
+        self.assertEqual(TodoItem.get_next_order_num(), 1)
+
+    def test_get_next_order_num_if_not_first(self):
+        item = TodoItem(title="Finish the app")
+        self.assertEqual(TodoItem.get_next_order_num(), 2)
