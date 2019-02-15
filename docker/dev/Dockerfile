@@ -10,7 +10,13 @@ VOLUME /reports
 
 ARG USER_NAME
 
-COPY src /app
+COPY src/requirements.txt /app/requirements.txt
+
+COPY src/requirements-test.txt /app/requirements-test.txt
+
+COPY src/manage.py /app/manage.py
+
+COPY src/setup.py /app/setup.py
 
 RUN pip download -d /build -r requirements-test.txt --no-input --exists-action w && \
     pip install --no-cache-dir --no-index -f /build -r requirements-test.txt && \

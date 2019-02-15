@@ -20,4 +20,3 @@ class TodoItemTests(LiveServerTestCase):
         item = TodoItem(**data)
         with self.assertRaises(ValidationError):
             item.full_clean()
-            item.save()
