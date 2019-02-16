@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="todolistapi",
-    version="0.0.2",
+    version="0.0.3",
     description="Todo List API",
     packages=find_packages(),
     include_package_data=True,
@@ -10,6 +10,7 @@ setup(
     install_requires=[
         "Django>=2.1.7",
         "django-cors-headers>=2.4.0",
+        "djangorestframework>=3.9.1",
         "gunicorn>=19.9.0"
     ],
     extras_require={

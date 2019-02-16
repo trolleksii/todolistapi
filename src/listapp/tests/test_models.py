@@ -6,14 +6,14 @@ from ..models import TodoItem
 
 class TodoItemTests(LiveServerTestCase):
     """Test TodoItem model"""
-    def test_can_create_item_with_title_set(self):
+
+    def setUp(self):
         data = {
             "title": "The very first item in the list"
         }
-        item = TodoItem(**data)
-        item.full_clean()
-        item.save()
-        self.assertEqual(item, TodoItem.objects.first())
+        self.todo_item = TodoItem(**data)
+        self.todo_item.full_clean()
+        self.todo_item.save()
 
     def test_cant_create_item_without_title(self):
         data = {}
@@ -21,9 +21,16 @@ class TodoItemTests(LiveServerTestCase):
         with self.assertRaises(ValidationError):
             item.full_clean()
 
-    def test_get_next_order_num_with_empty_db(self):
+    def test_todos_are_created_with_proper_defaults(self):
+        self.assertIsNone(self.todo_item.order)
+        self.assertFalse(self.todo_item.completed)
+
+    def test_get_next_order_num_first_item(self):
         self.assertEqual(TodoItem.get_next_order_num(), 1)
 
-    def test_get_next_order_num_if_not_first(self):
-        item = TodoItem.objects.create(title="Finish the app", order=2)
+    def test_get_next_order_num_second_item(self):
+        item = TodoItem.objects.create(
+            title="Finish the app",
+            order=2
+        )
         self.assertEqual(TodoItem.get_next_order_num(), 3)

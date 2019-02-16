@@ -6,6 +6,10 @@ INSTALLED_APPS += ('django_nose', )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+DEBUG = True
+
+ALLOWED_HOSTS = ['*']
+
 NOSE_ARGS = [
     '--verbosity=2',
     '--nologcapture',
