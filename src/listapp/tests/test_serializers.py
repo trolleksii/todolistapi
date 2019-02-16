@@ -27,3 +27,16 @@ class TodoItemSerializerTests(LiveServerTestCase):
         todoitem = TodoItem.objects.first()
         self.assertEqual(todoitem.title, data['title'])
         self.assertEqual(todoitem.order, data['order'])
+
+    def test_deserialize_with_duplicate_order_num_generates_next_available(self):
+        todoitem = TodoItem.objects.create(
+            title='New todo item',
+            order=3
+        )
+        serializer = TodoItemSerializer(data={
+            'title': 'Another todo item',
+            'order': 3
+        })
+        self.assertTrue(serializer.is_valid())
+        duplicate_num_item = serializer.save()
+        self.assertEqual(duplicate_num_item.order, todoitem.order + 1)
