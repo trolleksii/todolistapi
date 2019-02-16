@@ -25,5 +25,5 @@ class TodoItemTests(LiveServerTestCase):
         self.assertEqual(TodoItem.get_next_order_num(), 1)
 
     def test_get_next_order_num_if_not_first(self):
-        item = TodoItem(title="Finish the app")
-        self.assertEqual(TodoItem.get_next_order_num(), 2)
+        item = TodoItem.objects.create(title="Finish the app", order=2)
+        self.assertEqual(TodoItem.get_next_order_num(), 3)
