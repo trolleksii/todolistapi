@@ -4,8 +4,8 @@ jobs:
     docker:
       - image: trolleksii/python-base
         environment:
+          DJANGO_SETTINGS_MODULE: todolistapi.settings.test
           POSTGRES_PASSWORD: '123456'
-          TEST_OUTPUT_DIR: '/reports'
           WHEELHOUSE: /wheelhouse
           PIP_WHEEL_DIR: /wheelhouse
           PIP_FIND_LINKS: /wheelhouse
@@ -37,9 +37,10 @@ jobs:
           command: |
             cd src
             coverage run --omit=manage.py,setup.py manage.py test
-            coverage report
+            coverage report --show-missing
             coverage xml -o /reports/coverage.xml
             coverage html -d /reports/html
+            mv unittests.xml /reports/unittests.xml
       - store_artifacts:
           path: /reports
       - save_cache:

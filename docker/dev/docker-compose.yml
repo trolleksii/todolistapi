@@ -5,15 +5,7 @@ services:
     image:
       postgres:10.6-alpine
     environment:
-      - POSTGRES_PASSWORD=${PG_PASSWORD}
-
-  db_probe:
-    image: trolleksii/ansible_db_probe
-    depends_on:
-      - db
-    environment:
-      - PROBE_HOST=db
-      - PROBE_PORT=5432
+      - POSTGRES_PASSWORD=123456
 
   app:
     build:
@@ -22,10 +14,9 @@ services:
       context: ../../
       dockerfile: ./docker/dev/Dockerfile
     environment:
-      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_PASSWORD=123456
       - POSTGRES_HOST=db
       - DJANGO_SETTINGS_MODULE=todolistapi.settings.test
-    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ${PWD}/src:/app
     ports:

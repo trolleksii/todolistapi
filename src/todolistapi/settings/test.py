@@ -2,11 +2,13 @@ import os
 
 from .base import *
 
-INSTALLED_APPS.insert(0, 'django_nose')
+INSTALLED_APPS += ('django_nose', )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-TEST_OUTPUT_DIR = os.environ.get('TEST_OUTPUT_DIR', '.')
+DEBUG = True
+
+ALLOWED_HOSTS = ['*']
 
 NOSE_ARGS = [
     '--verbosity=2',
@@ -14,7 +16,7 @@ NOSE_ARGS = [
     '--with-spec',
     '--spec-color',
     '--with-xunit',
-    f'--xunit-file={TEST_OUTPUT_DIR}/unittests.xml',
+    f'--xunit-file=unittests.xml',
 ]
 
 DATABASES = {

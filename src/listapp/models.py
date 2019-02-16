@@ -11,7 +11,7 @@ class TodoItem(models.Model):
 
     @classmethod
     def get_next_order_num(cls):
-        last_item = cls.objects.values('order').order_by('order').last()
+        last_item = cls.objects.values('order').order_by('order').exclude(order=None).last()
         if not last_item or last_item['order'] is None:
             return 1
         return last_item['order'] + 1
