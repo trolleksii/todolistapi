@@ -1,4 +1,11 @@
 *.pyc
 .vscode
+
 .coverage
-unittests.xml
+*.xml
+
+*.tfvar
+*.terraform
+terraform.tfstate
+terraform.tfstate.backup
+tfplan
