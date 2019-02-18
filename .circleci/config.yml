@@ -18,7 +18,6 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "src/setup.py" }}
-            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - run:
           name: Install package dependencies
@@ -63,7 +62,6 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "src/setup.py" }}
-            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - run:
           name: Build artifact
@@ -97,15 +95,54 @@ jobs:
             docker push trolleksii/todolistapi:$(git rev-parse --short HEAD)
             docker logout
 
+  deploy:
+    docker:
+      - image: trolleksii/terraform:latest
+    steps:
+      - checkout
+      - run:
+          name: Init terraform
+          command: |
+            cd deploy/infrastructure
+            terraform init \
+              -input=false \
+              -backend=true \
+              -backend-config="access_key=$AWS_ACCESS_KEY" \
+              -backend-config="secret_key=$AWS_SECRET_KEY"
+      - run:
+          name: Plan infrastructure changes
+          command: |
+            cd deploy/infrastructure
+            terraform plan \
+              -var "aws_access_key=$AWS_ACCESS_KEY" \
+              -var "aws_secret_key=$AWS_SECRET_KEY" \
+              -var "project_name=$PROJECT_NAME" \
+              -var "domain_name=$DOMAIN_NAME" \
+              -var "letsenctypt_reg_email=$LETSENCRYPT_REG_EMAIL" \
+              -var "pg_db=$PG_DB" \
+              -var "pg_user=$PG_USER" \
+              -var "pg_password=$PG_PASSWORD" \
+              -var "docker_image=trolleksii/todolistapi" \
+              -var "django_secret_key=$DJANGO_SECRET_KEY" \
+              -var "image_tag=$(git rev-parse --short HEAD)" \
+              -input=false \
+              -out tfplan
+      - run:
+          name: Apply infrastructure changes
+          command: |
+            cd deploy/infrastructure
+            terraform apply "tfplan"
+
 workflows:
   version: 2
-  build-and-release:
+  test-build-release-deploy:
     jobs:
       - test
       - build:
           filters:
             branches:
               only:
+                - master
                 - dev
           requires:
             - test
@@ -113,6 +150,14 @@ workflows:
           filters:
             branches:
               only:
+                - master
                 - dev
           requires:
             - build
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - release

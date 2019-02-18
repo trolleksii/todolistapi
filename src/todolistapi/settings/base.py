@@ -2,9 +2,9 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'rq^yfc8d&bg3ymw#1qq*)5pyo3o34ve^nd2zg%231wi5vl5y&w'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'rq^yfc8d&bg3ymw#1qq*)5pyo3o34ve^nd2zg%231wi5vl5y&w')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
