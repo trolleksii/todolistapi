@@ -6,6 +6,12 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'rq^yfc8d&bg3ymw#1qq*)5pyo3o34ve^nd2zg
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
+ADMIN = {
+    "username": os.environ.get('ADMIN_USERNAME', 'admin'),
+    "email": os.environ.get('ADMIN_EMAIL', 'admin@somemail.com'),
+    "password": os.environ.get('ADMIN_PASSWORD', 'admin')
+}
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -90,3 +96,5 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = '/static'
