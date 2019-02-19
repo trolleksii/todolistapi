@@ -143,10 +143,13 @@ resource "null_resource" "restart_apps" {
             "[ ! -z $(sudo docker container ls -f name=gateway -q) ] && sudo docker stop gateway",
             "[ ! -z $(sudo docker container ls -f name=${var.project_name} -q) ] && sudo docker stop ${var.project_name}",
             "[ -z $(sudo docker network ls -f name=${var.project_name}-net -q) ] && sudo docker network create --driver bridge ${var.project_name}-net",
+            "[ -z $(sudo docker volume ls -f name=${var.project_name}-static -q) ] && sudo docker volume create ${var.project_name}-static",
             "sudo docker container prune -f",
-            "sudo docker run --name gateway -d --network ${var.project_name}-net --restart unless-stopped -v /tmp/nginx.conf:/etc/nginx/nginx.conf -v /etc/nginx/certs:/etc/nginx/certs -p 80:80 -p 443:443 nginx:stable-alpine",
+            "sudo docker run --name gateway -d --network ${var.project_name}-net --restart unless-stopped -v ${var.project_name}-static:/static -v /tmp/nginx.conf:/etc/nginx/nginx.conf -v /etc/nginx/certs:/etc/nginx/certs -p 80:80 -p 443:443 nginx:stable-alpine",
             "sudo docker run --rm -e DB_NAME='${var.pg_db}' -e POSTGRES_USER='${var.pg_user}' -e POSTGRES_PASSWORD='${var.pg_password}' -e POSTGRES_HOST='${aws_db_instance.db.address}' -e POSTGRES_PORT='${var.pg_port}' -e DJANGO_SETTINGS_MODULE='${var.django_settings_module}' -e SECRET_KEY='${var.django_secret_key}' ${var.docker_image}:${var.image_tag} manage.py migrate",
-            "sudo docker run --name ${var.project_name} -d --network ${var.project_name}-net --restart unless-stopped -e DB_NAME='${var.pg_db}' -e POSTGRES_USER='${var.pg_user}' -e POSTGRES_PASSWORD='${var.pg_password}' -e POSTGRES_HOST='${aws_db_instance.db.address}' -e POSTGRES_PORT='${var.pg_port}' -e DJANGO_SETTINGS_MODULE='${var.django_settings_module}' -e ALLOWED_HOSTS='${var.project_name}}' -e SECRET_KEY='${var.django_secret_key}' ${var.docker_image}:${var.image_tag}"
+            "sudo docker run --rm -e DB_NAME='${var.pg_db}' -e POSTGRES_USER='${var.pg_user}' -e POSTGRES_PASSWORD='${var.pg_password}' -e POSTGRES_HOST='${aws_db_instance.db.address}' -e POSTGRES_PORT='${var.pg_port}' -e DJANGO_SETTINGS_MODULE='${var.django_settings_module}' -e SECRET_KEY='${var.django_secret_key}' ${var.docker_image}:${var.image_tag} manage.py init_admin",
+            "sudo docker run --rm -v ${var.project_name}-static:/static -e DJANGO_SETTINGS_MODULE='${var.django_settings_module}' -e SECRET_KEY='${var.django_secret_key}' ${var.docker_image}:${var.image_tag} manage.py collectstatic --no-input",
+            "sudo docker run --name ${var.project_name} -d --network ${var.project_name}-net --restart unless-stopped -e DB_NAME='${var.pg_db}' -e POSTGRES_USER='${var.pg_user}' -e POSTGRES_PASSWORD='${var.pg_password}' -e POSTGRES_HOST='${aws_db_instance.db.address}' -e POSTGRES_PORT='${var.pg_port}' -e DJANGO_SETTINGS_MODULE='${var.django_settings_module}' -e ALLOWED_HOSTS='${var.project_name}' -e SECRET_KEY='${var.django_secret_key}' ${var.docker_image}:${var.image_tag}"
         ]
     }
 }

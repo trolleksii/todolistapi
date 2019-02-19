@@ -34,6 +34,10 @@ http {
             proxy_pass http://${app_name}:8000;
         }
 
+        location /static {
+            alias /static;
+        }
+
         listen 443 ssl;
         listen [::]:443;
     }

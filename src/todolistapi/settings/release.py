@@ -2,7 +2,7 @@ import os
 
 from .base import *
 
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'off') == 'on'
 
 DATABASES = {
     'default': {
