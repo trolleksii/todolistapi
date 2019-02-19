@@ -10,12 +10,21 @@ VOLUME /reports
 
 ARG USER_NAME
 
-COPY src /app
+COPY src/requirements.txt /app/requirements.txt
+
+COPY src/requirements-test.txt /app/requirements-test.txt
+
+COPY src/manage.py /app/manage.py
+
+COPY src/setup.py /app/setup.py
 
 RUN pip download -d /build -r requirements-test.txt --no-input --exists-action w && \
     pip install --no-cache-dir --no-index -f /build -r requirements-test.txt && \
     adduser -s /bin/sh -H -D $USER_NAME && \
-    chown -R $USER_NAME /app
+    chown -R $USER_NAME /app && \
+    wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz && \
+    tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz && \
+    rm dockerize-linux-amd64-v0.6.1.tar.gz
 
 EXPOSE 8000
 

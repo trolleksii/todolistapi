@@ -7,4 +7,4 @@ RUN pip install --no-index -f /wheelhouse todolistapi && \
 
 EXPOSE 8000
 
-CMD ["gunicorn", "-w 2", "--bind 0.0.0.0:8000", "todolistapi.wsgi:application"]
+CMD ["gunicorn", "-w", "2", "--bind", "0.0.0.0:8000", "todolistapi.wsgi:application"]

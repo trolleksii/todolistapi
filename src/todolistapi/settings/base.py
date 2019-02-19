@@ -2,9 +2,15 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'rq^yfc8d&bg3ymw#1qq*)5pyo3o34ve^nd2zg%231wi5vl5y&w'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'rq^yfc8d&bg3ymw#1qq*)5pyo3o34ve^nd2zg%231wi5vl5y&w')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
+
+ADMIN = {
+    "username": os.environ.get('ADMIN_USERNAME', 'admin'),
+    "email": os.environ.get('ADMIN_EMAIL', 'admin@somemail.com'),
+    "password": os.environ.get('ADMIN_PASSWORD', 'admin')
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -13,6 +19,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'listapp'
 ]
 
 MIDDLEWARE = [
@@ -67,6 +75,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+    'NON_FIELD_ERRORS_KEY': 'detail',
+}
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -78,3 +96,5 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = '/static'
